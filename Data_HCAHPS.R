@@ -1,5 +1,5 @@
 # title: Data_HCAHPS
-# author: 3M Capstone Team: Ashwini Bhaskar, Ivy Yang,Hello
+# author: 3M Capstone Team: Ashwini Bhaskar, Ivy Yang
 # version: 1.0
 # output: .csv document
 
