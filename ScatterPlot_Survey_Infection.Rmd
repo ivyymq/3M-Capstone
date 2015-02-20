@@ -1,0 +1,45 @@
+---
+title: Scatter Plots
+output: html_document
+---
+
+```{r, echo=FALSE, fig.width = 20, fig.height = 15, fig.align='center', warning=FALSE}
+#Read in file
+hospital.data = read.csv(file = "survey_grade_DataFile.csv", header = T) # reade file
+
+#keep only value of score and days for infection related value, and all survey file for correction
+column.cor = sort(c(grep("DAYS|Score|Grade|SIR",names(hospital.data))))
+hospital.part = hospital.data[,column.cor]
+
+# plot scatter plots
+library(ggplot2)
+# get survey grade columns
+survey.columns <- grep("Grade",names(hospital.part))
+# get infection score columns
+infection.columns <- which(!c(1:length(column.cor)) %in% grep("Grade",names(hospital.part)))
+
+library(grid)
+# different infection scores(y) against same survey grade(x)
+for(i in 1:length(infection.columns)) {
+  print(paste(i, as.character(names(hospital.part[infection.columns[i]]))))
+  # create new page to print plots
+  grid.newpage()
+  pushViewport(viewport(layout = grid.layout(3,4)))
+  vplayout <- function(x,y){
+    viewport(layout.pos.row = x, layout.pos.col = y)
+  }
+  for(j in 1:length(survey.columns)){
+    # calculate the coordinate of plot 
+    row = as.integer((j-1)/4)+1
+    col = (j-1)%%4+1
+    plot = ggplot(hospital.part, mapping = aes(x=hospital.part[,survey.columns[j]], 
+                                               y=hospital.part[,infection.columns[i]])) + 
+      labs(x = as.character(names(hospital.part[survey.columns[j]])), y = as.character(names(hospital.part[infection.columns[i]]))) + geom_point() + coord_cartesian(xlim = c(-1.1, 1.1))
+    # print plot into correct location
+    print(plot, vp = vplayout(row, col))
+  }
+}
+
+# also output the current data frame
+write.csv(hospital.part, "Data_Pro_WeightedSurvey_Infection.csv", row.names = F)
+```
