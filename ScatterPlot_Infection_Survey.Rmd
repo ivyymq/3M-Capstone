@@ -1,0 +1,43 @@
+---
+title: Scatter Plots
+output: html_document
+---
+
+```{r, echo=FALSE, eval=FALSE, fig.width = 20, fig.height = 40, fig.align='center', warning=FALSE}
+#Read in file
+hospital.data = read.csv(file = "Data_Pro_numeric.csv", header = T) # reade file
+hospital.data$PSI_90_SAFETY_Denominator = NULL
+hospital.data$Provider_ID = NULL
+
+#keep only value of score and days for infection related value, and all survey file for correction
+column.cor = sort(c(grep("DAYS",names(hospital.data)),grep("Score",names(hospital.data)),grep("H_",names(hospital.data)), grep("SIR",names(hospital.data))))
+hospital.part = hospital.data[,column.cor]
+
+
+# plot scatter plots
+library(ggplot2)
+survey.columns <- grep("H_",names(hospital.part))
+inflection.columns <- which(!c(1:length(column.cor)) %in% grep("H_",names(hospital.part)))
+
+library(grid)
+for(i in inflection.columns) {
+  print(as.character(names(hospital.part[i])))
+  grid.newpage()
+  pushViewport(viewport(layout = grid.layout(8,4)))
+  vplayout <- function(x,y){
+    viewport(layout.pos.row = x, layout.pos.col = y)
+  }
+  for(j in 1:length(survey.columns)){
+    row = as.integer((j-1)/4)+1
+    col = (j-1)%%4+1
+    plot = ggplot(hospital.part, mapping = aes(x=hospital.part[,i], 
+                                               y=hospital.part[,survey.columns[j]])) + 
+      labs(x = as.character(names(hospital.part[i])), y = as.character(names(hospital.part[survey.columns[j]]))) + geom_point()
+    print(plot, vp = vplayout(row, col))
+  }
+}
+```
+
+```{r echo=FALSE, fig.width = 20, fig.height = 40, fig.align='center', warning=FALSE}
+weighted <- read.csv("survey_grade_DataFile.csv", header = T)
+```
