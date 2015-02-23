@@ -16,103 +16,77 @@ hospital.data = read.csv(file = "Data_Pro_numeric.csv", header = T) # reade file
 # get the infection column indices
 infection.columns <- grep("DAYS|Score|SIR",names(hospital.data))
 
-# plot scatter plots
-# define point.jitter
-point.jitter = geom_point(position=position_jitter(height=0.05, width=0), size = 1)
+# define function to melt different answers for the same question
+get.melt <- function(index, melt.col) {
+  hospital.melt <- melt(data = hospital.data, na.rm = F, id.vars = c(1:151), measure.vars = c(index:(index+melt.col)))
+  return(hospital.melt)
+}
 
-# first type: A_P/SN_P/U_P
-measure.type.1 <- c(seq(44, 61, by=3))
-# second type: N_P/Y_P
-measure.type.2 <- c(62)
-# third type: A/SD/SA
-measure.type.3 <- c(64)
-# fourth type: 0_6/7_8/9_10
-measure.type.4 <- c(67)
-# fifth type: A_P/SN_P/U_P
-measure.type.5 <- c(70)
-# sixth type: DN/DY/PY
-measure.type.6 <- c(73)
+# define function to print scatter plots
+plots <- function(index, count, name.split, melt.col, col1, col2, col3 = NULL, hospital.melt) {
+  # calculate coordinate
+  row = as.integer((count-1)/4)+1
+  col = (count-1)%%4+1
+  # define label
+  measure = strsplit(names(hospital.data)[index], split = name.split)[[1]]
+  # define colors with different answers for the same question
+  if (melt.col == 2) {
+    values = c("#F8766D", "#00BA38", "#619CFF")
+    names(values) = c(col1, col2, col3)
+  }
+  if (melt.col == 1) {
+    values = c("#F8766D", "#00BA38")
+    names(values) = c(col1, col2)
+  }
+  # generate scatter plot
+  plot = ggplot(data = hospital.melt, aes(x = value, y = hospital.melt[,infection.columns[i]], color = variable)) + geom_point(size = 1.5) + labs(x = measure, y = as.character(names(hospital.melt[infection.columns[i]]))) + theme(legend.position="top") + scale_color_manual(values = values)
+  print(plot, vp = vplayout(row, col))
+}
+
 
 for(i in 1:length(infection.columns)) {
-  count = 1
   print(paste(i, names(hospital.data[infection.columns[i]])))
+  
   # create new page to print plots
   grid.newpage()
   pushViewport(viewport(layout = grid.layout(3,4)))
   vplayout <- function(x,y){
     viewport(layout.pos.row = x, layout.pos.col = y)
   }
-  # first type: A_P/SN_P/U_P
-  for(j in 1:length(measure.type.1)) {
-    index = measure.type.1[j]
-    row = as.integer((count-1)/4)+1
-    col = (count-1)%%4+1
-    measure = paste(strsplit(names(hospital.data)[index], split = "_A_P")[[1]], "Grade", sep = "_")
-    hospital.melt = melt(data = hospital.data, na.rm = F, id.vars = c(1:151), measure.vars = c(index:(index+2)))
-    plot = ggplot(data = hospital.melt, aes(x = value, y = hospital.melt[,infection.columns[i]], color = variable)) + point.jitter + labs(x = measure, y = as.character(names(hospital.melt[infection.columns[i]]))) + theme(legend.position="top")
-    print(plot, vp = vplayout(row, col))
-    count = count + 1
-  }
-  
-  # second type: N_P/Y_P
-  for(j in 1:length(measure.type.2)) {
-    index = measure.type.2[j]
-    row = as.integer((count-1)/4)+1
-    col = (count-1)%%4+1
-    measure = paste(strsplit(names(hospital.data)[index], split = "_N_P")[[1]], "Grade", sep = "_")
-    hospital.melt = melt(data = hospital.data, na.rm = F, id.vars = c(1:151), measure.vars = c(index:(index+1)))
-    plot = ggplot(data = hospital.melt, aes(x = value, y = hospital.melt[,infection.columns[i]], color = variable)) + point.jitter + labs(x = measure, y = as.character(names(hospital.melt[infection.columns[i]]))) + theme(legend.position="top")
-    print(plot, vp = vplayout(row, col))
-    count = count + 1
-  }
-  
-  # third type: A/SD/SA
-  for(j in 1:length(measure.type.3)) {
-    index = measure.type.3[j]
-    row = as.integer((count-1)/4)+1
-    col = (count-1)%%4+1
-    measure = paste(strsplit(names(hospital.data)[index], split = "_A")[[1]], "Grade", sep = "_")
-    hospital.melt = melt(data = hospital.data, na.rm = F, id.vars = c(1:151), measure.vars = c(index:(index+2)))
-    plot = ggplot(data = hospital.melt, aes(x = value, y = hospital.melt[,infection.columns[i]], color = variable)) + point.jitter + labs(x = measure, y = as.character(names(hospital.melt[infection.columns[i]]))) + theme(legend.position="top")
-    print(plot, vp = vplayout(row, col))
-    count = count + 1
-  }
-  
-  # fourth type: 0-6/7-8/9-10
-  for(j in 1:length(measure.type.4)) {
-    index = measure.type.4[j]
-    row = as.integer((count-1)/4)+1
-    col = (count-1)%%4+1
-    measure = paste(strsplit(names(hospital.data)[index], split = "_0_6")[[1]], "Grade", sep = "_")
-    hospital.melt = melt(data = hospital.data, na.rm = F, id.vars = c(1:151), measure.vars = c(index:(index+2)))
-    plot = ggplot(data = hospital.melt, aes(x = value, y = hospital.melt[,infection.columns[i]], color = variable)) + point.jitter + labs(x = measure, y = as.character(names(hospital.melt[infection.columns[i]]))) + theme(legend.position="top")
-    print(plot, vp = vplayout(row, col))
-    count = count + 1
-  }
-  
-  # fifth type: A_P/SN_P/U_P
-  for(j in 1:length(measure.type.5)) {
-    index = measure.type.5[j]
-    row = as.integer((count-1)/4)+1
-    col = (count-1)%%4+1
-    measure = paste(strsplit(names(hospital.data)[index], split = "_A_P")[[1]], "Grade", sep = "_")
-    hospital.melt = melt(data = hospital.data, na.rm = F, id.vars = c(1:151), measure.vars = c(index:(index+2)))
-    plot = ggplot(data = hospital.melt, aes(x = value, y = hospital.melt[,infection.columns[i]], color = variable)) + point.jitter + labs(x = measure, y = as.character(names(hospital.melt[infection.columns[i]]))) + theme(legend.position="top")
-    print(plot, vp = vplayout(row, col))
-    count = count + 1
-  }
-  
-  # sixth type: DN/DY/PY
-  for(j in 1:length(measure.type.6)) {
-    index = measure.type.6[j]
-    row = as.integer((count-1)/4)+1
-    col = (count-1)%%4+1
-    measure = paste(strsplit(names(hospital.data)[index], split = "_DN")[[1]], "Grade", sep = "_")
-    hospital.melt = melt(data = hospital.data, na.rm = F, id.vars = c(1:151), measure.vars = c(index:(index+2)))
-    plot = ggplot(data = hospital.melt, aes(x = value, y = hospital.melt[,infection.columns[i]], color = variable)) + point.jitter + labs(x = measure, y = as.character(names(hospital.melt[infection.columns[i]]))) + theme(legend.position="top")
-    print(plot, vp = vplayout(row, col))
-    count = count + 1
-  }
+
+  # plot H_CLEAN_HSP
+  hospital.melt <- get.melt(44, 2)
+  plots(44, 1, "_A_P", 2, "H_CLEAN_HSP_A_P", "H_CLEAN_HSP_SN_P", "H_CLEAN_HSP_U_P", hospital.melt)
+  # plot H_COMP_1
+  hospital.melt <- get.melt(47, 2)
+  plots(47, 2, "_A_P", 2, "H_COMP_1_A_P", "H_COMP_1_SN_P", "H_COMP_1_U_P", hospital.melt)
+  # plot H_COMP_2
+  hospital.melt <- get.melt(50, 2)
+  plots(50, 3, "_A_P", 2, "H_COMP_2_A_P", "H_COMP_2_SN_P", "H_COMP_2_U_P", hospital.melt)
+  # plot H_COMP_3
+  hospital.melt <- get.melt(53, 2)
+  plots(53, 4, "_A_P", 2, "H_COMP_3_A_P", "H_COMP_3_SN_P", "H_COMP_3_U_P", hospital.melt)
+  # plot H_COMP_4
+  hospital.melt <- get.melt(56, 2)
+  plots(56, 5, "_A_P", 2, "H_COMP_4_A_P", "H_COMP_4_SN_P", "H_COMP_4_U_P", hospital.melt)
+  # plot H_COMP_5
+  hospital.melt <- get.melt(59, 2)
+  plots(59, 6, "_A_P", 2, "H_COMP_5_A_P", "H_COMP_5_SN_P", "H_COMP_5_U_P", hospital.melt)
+  # plot H_COMP_6
+  hospital.melt <- get.melt(62, 1)
+  plots(62, 7, "_N_P", 1, "H_COMP_6_Y_P", "H_COMP_6_N_P", NULL, hospital.melt)
+  # plot H_COMP_7
+  hospital.melt <- get.melt(64, 2)
+  plots(64, 8, "_A", 2, "H_COMP_7_SA", "H_COMP_7_D_SD", "H_COMP_7_A", hospital.melt)
+  # plot H_HSP_RATING
+  hospital.melt <- get.melt(67, 2)
+  plots(67, 9, "_0_6", 2, "H_HSP_RATING_9_10", "H_HSP_RATING_0_6", "H_HSP_RATING_7_8", hospital.melt)
+  # plot H_QUIET_HSP
+  hospital.melt <- get.melt(70, 2)
+  plots(70, 10, "_A_P", 2, "H_QUIET_HSP_A_P", "H_QUIET_HSP_SN_P", "H_QUIET_HSP_U_P", hospital.melt)
+  # plot H_RECMND
+  hospital.melt <- get.melt(73, 2)
+  plots(73, 11, "_A_P", 2, "H_RECMND_DY", "H_RECMND_DN", "H_RECMND_PY", hospital.melt)
 }
 ```
 
