@@ -1,0 +1,118 @@
+---
+title: Scatter Plots
+output: html_document
+---
+
+```{r, echo=FALSE, fig.width = 28, fig.height = 21, fig.align='center', warning=FALSE}
+setwd("~/Documents/Capstone - Raw Data Backup")
+
+library(reshape2)
+library(ggplot2)
+library(grid)
+
+#Read in file
+hospital.data = read.csv(file = "Data_Pro_numeric.csv", header = T) # reade file
+
+# get the infection column indices
+infection.columns <- grep("DAYS|Score|SIR",names(hospital.data))
+
+# plot scatter plots
+# define point.jitter
+point.jitter = geom_point(position=position_jitter(height=0.05, width=0), size = 1)
+
+# first type: A_P/SN_P/U_P
+measure.type.1 <- c(seq(44, 61, by=3))
+# second type: N_P/Y_P
+measure.type.2 <- c(62)
+# third type: A/SD/SA
+measure.type.3 <- c(64)
+# fourth type: 0_6/7_8/9_10
+measure.type.4 <- c(67)
+# fifth type: A_P/SN_P/U_P
+measure.type.5 <- c(70)
+# sixth type: DN/DY/PY
+measure.type.6 <- c(73)
+
+for(i in 1:length(infection.columns)) {
+  count = 1
+  print(paste(i, names(hospital.data[infection.columns[i]])))
+  # create new page to print plots
+  grid.newpage()
+  pushViewport(viewport(layout = grid.layout(3,4)))
+  vplayout <- function(x,y){
+    viewport(layout.pos.row = x, layout.pos.col = y)
+  }
+  # first type: A_P/SN_P/U_P
+  for(j in 1:length(measure.type.1)) {
+    index = measure.type.1[j]
+    row = as.integer((count-1)/4)+1
+    col = (count-1)%%4+1
+    measure = paste(strsplit(names(hospital.data)[index], split = "_A_P")[[1]], "Grade", sep = "_")
+    hospital.melt = melt(data = hospital.data, na.rm = F, id.vars = c(1:151), measure.vars = c(index:(index+2)))
+    plot = ggplot(data = hospital.melt, aes(x = value, y = hospital.melt[,infection.columns[i]], color = variable)) + point.jitter + labs(x = measure, y = as.character(names(hospital.melt[infection.columns[i]]))) + theme(legend.position="top")
+    print(plot, vp = vplayout(row, col))
+    count = count + 1
+  }
+  
+  # second type: N_P/Y_P
+  for(j in 1:length(measure.type.2)) {
+    index = measure.type.2[j]
+    row = as.integer((count-1)/4)+1
+    col = (count-1)%%4+1
+    measure = paste(strsplit(names(hospital.data)[index], split = "_N_P")[[1]], "Grade", sep = "_")
+    hospital.melt = melt(data = hospital.data, na.rm = F, id.vars = c(1:151), measure.vars = c(index:(index+1)))
+    plot = ggplot(data = hospital.melt, aes(x = value, y = hospital.melt[,infection.columns[i]], color = variable)) + point.jitter + labs(x = measure, y = as.character(names(hospital.melt[infection.columns[i]]))) + theme(legend.position="top")
+    print(plot, vp = vplayout(row, col))
+    count = count + 1
+  }
+  
+  # third type: A/SD/SA
+  for(j in 1:length(measure.type.3)) {
+    index = measure.type.3[j]
+    row = as.integer((count-1)/4)+1
+    col = (count-1)%%4+1
+    measure = paste(strsplit(names(hospital.data)[index], split = "_A")[[1]], "Grade", sep = "_")
+    hospital.melt = melt(data = hospital.data, na.rm = F, id.vars = c(1:151), measure.vars = c(index:(index+2)))
+    plot = ggplot(data = hospital.melt, aes(x = value, y = hospital.melt[,infection.columns[i]], color = variable)) + point.jitter + labs(x = measure, y = as.character(names(hospital.melt[infection.columns[i]]))) + theme(legend.position="top")
+    print(plot, vp = vplayout(row, col))
+    count = count + 1
+  }
+  
+  # fourth type: 0-6/7-8/9-10
+  for(j in 1:length(measure.type.4)) {
+    index = measure.type.4[j]
+    row = as.integer((count-1)/4)+1
+    col = (count-1)%%4+1
+    measure = paste(strsplit(names(hospital.data)[index], split = "_0_6")[[1]], "Grade", sep = "_")
+    hospital.melt = melt(data = hospital.data, na.rm = F, id.vars = c(1:151), measure.vars = c(index:(index+2)))
+    plot = ggplot(data = hospital.melt, aes(x = value, y = hospital.melt[,infection.columns[i]], color = variable)) + point.jitter + labs(x = measure, y = as.character(names(hospital.melt[infection.columns[i]]))) + theme(legend.position="top")
+    print(plot, vp = vplayout(row, col))
+    count = count + 1
+  }
+  
+  # fifth type: A_P/SN_P/U_P
+  for(j in 1:length(measure.type.5)) {
+    index = measure.type.5[j]
+    row = as.integer((count-1)/4)+1
+    col = (count-1)%%4+1
+    measure = paste(strsplit(names(hospital.data)[index], split = "_A_P")[[1]], "Grade", sep = "_")
+    hospital.melt = melt(data = hospital.data, na.rm = F, id.vars = c(1:151), measure.vars = c(index:(index+2)))
+    plot = ggplot(data = hospital.melt, aes(x = value, y = hospital.melt[,infection.columns[i]], color = variable)) + point.jitter + labs(x = measure, y = as.character(names(hospital.melt[infection.columns[i]]))) + theme(legend.position="top")
+    print(plot, vp = vplayout(row, col))
+    count = count + 1
+  }
+  
+  # sixth type: DN/DY/PY
+  for(j in 1:length(measure.type.6)) {
+    index = measure.type.6[j]
+    row = as.integer((count-1)/4)+1
+    col = (count-1)%%4+1
+    measure = paste(strsplit(names(hospital.data)[index], split = "_DN")[[1]], "Grade", sep = "_")
+    hospital.melt = melt(data = hospital.data, na.rm = F, id.vars = c(1:151), measure.vars = c(index:(index+2)))
+    plot = ggplot(data = hospital.melt, aes(x = value, y = hospital.melt[,infection.columns[i]], color = variable)) + point.jitter + labs(x = measure, y = as.character(names(hospital.melt[infection.columns[i]]))) + theme(legend.position="top")
+    print(plot, vp = vplayout(row, col))
+    count = count + 1
+  }
+}
+```
+
