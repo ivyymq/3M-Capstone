@@ -1,5 +1,5 @@
 # Author:Joyce Xu
-# Version: Version 3
+# Version: Version 4(Add differrent correlation method)
 # Date: 2/20/2015
 
 #Read in file
@@ -9,8 +9,12 @@ hospital.data = read.csv(file = "Data_Pro_WeightedSurvey_Infection.csv", header 
 
 #Get Correlation Matrics
 correlation.value = cor(hospital.data, use="complete.obs")
-write.csv(correlation.value, "correlation_infection_survey.csv")  #Output correlation table
+correlation.value.kendall = cor(hospital.data, use="complete.obs", method = "kendall")
+correlation.value.spearman = cor(hospital.data, use="complete.obs",method = "spearman")
 
+write.csv(correlation.value, "correlation_infection_survey.csv")  #Output correlation table
+write.csv(correlation.value.kendall, "correlation_infection_survey.kendall.csv")  #Output correlation table
+write.csv(correlation.value.spearman, "correlation_infection_survey.spearman.csv")  #Output correlation table
 
 
 #plot heatmap of all correlation
@@ -61,5 +65,28 @@ corrplot(correlation.value.survey, method = "number")
 dev.off()
 
 
+
+#Plot kendall correlation
+#plot heatmap of all correlation
+library(corrplot)
+jpeg("correlation_infection_survey_circle.kendall.jpg", width = 1800, height = 1800,quality = 100)
+corrplot(correlation.value.kendall, method = "circle")
+dev.off()
+
+jpeg("correlation_infection_survey_number.kendall.jpg", width = 1800, height = 1800, quality = 100)
+
+corrplot(correlation.value.kendall, method = "number")
+dev.off()
+
+#Plot spearman correlation
+#plot heatmap of all correlation
+library(corrplot)
+jpeg("correlation_infection_survey_circle.spearman.jpg", width = 1800, height = 1800,quality = 100)
+corrplot(correlation.value.spearman, method = "circle")
+dev.off()
+
+jpeg("correlation_infection_survey_number.spearman.jpg", width = 1800, height = 1800, quality = 100)
+corrplot(correlation.value.spearman, method = "number")
+dev.off()
 
 
