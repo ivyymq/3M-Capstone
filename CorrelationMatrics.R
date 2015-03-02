@@ -1,6 +1,6 @@
 # Author:Joyce Xu
-# Version: Version 4(Add differrent correlation method)
-# Date: 2/20/2015
+# Version: Version 5(Add differrent correlation method and mutual information)
+# Date: 3/02/2015
 
 #Read in file
 hospital.data = read.csv(file = "Data_Pro_WeightedSurvey_Infection.csv", header = T) # reade file
@@ -90,3 +90,17 @@ corrplot(correlation.value.spearman, method = "number")
 dev.off()
 
 
+#Try Mutual information instead of correlation
+hospital.dis = discretize(hospital.data)
+mutinfo.hos=mutinformation(hospital.dis, method = "emp")
+write.csv(mutinfo.hos, "mutual_infection_survey.emp.csv")  #Output mutual information table
+
+#Draw heatmap using mutual information
+library(corrplot)
+jpeg("mutual_infection_survey_circle.emp.jpg", width = 1800, height = 1800,quality = 100)
+corrplot(mutinfo.hos, method = "circle")
+dev.off()
+
+jpeg("mutual_infection_survey_number.emp.jpg", width = 1800, height = 1800, quality = 100)
+corrplot(mutinfo.hos, method = "number")
+dev.off()
