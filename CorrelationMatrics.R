@@ -91,16 +91,28 @@ dev.off()
 
 
 #Try Mutual information instead of correlation
+library(infotheo)
 hospital.dis = discretize(hospital.data)
-mutinfo.hos=mutinformation(hospital.dis, method = "emp")
+mutual=mutinformation(hospital.dis, method = "emp")
 write.csv(mutinfo.hos, "mutual_infection_survey.emp.csv")  #Output mutual information table
 
-#Draw heatmap using mutual information
+#Standardize to -1 to 1
+mutual = as.data.frame(mutual)
+mutual.values = mutual[, 1:48]
+max = max(mutual.values, na.rm = T)
+min = min(mutual.values, na.rm = T)
+mutual.scale = (mutual.values * 2 - max - min) / (max - min)
+mutual.scaled = cbind(mutual[, 1], mutual.scale)
+mutual.scaled = as.matrix(mutual.scale)
+
+
+#Draw heatmap using mutual information after standardize to -1 and 1
 library(corrplot)
-jpeg("mutual_infection_survey_circle.emp.jpg", width = 1800, height = 1800,quality = 100)
-corrplot(mutinfo.hos, method = "circle")
+mutinfo.hos1= read.csv(file = "mutual_infection_survey.emp.scale.csv", header = T)
+jpeg("mutual_infection_survey_circle_emp.jpg", width = 1800, height = 1800,quality = 100)
+corrplot(mutual.scaled, method = "circle")
 dev.off()
 
-jpeg("mutual_infection_survey_number.emp.jpg", width = 1800, height = 1800, quality = 100)
+jpeg("mutual_infection_survey_number_emp.jpg", width = 1800, height = 1800, quality = 100)
 corrplot(mutinfo.hos, method = "number")
 dev.off()
