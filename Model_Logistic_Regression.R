@@ -1,51 +1,27 @@
 # title: Model_Logistic_Regression
 # autuor: Ivy Yang & Joyce Xu
-# version: 3.0
+# version: 4.0
 # output: .csv file & .txt file
 
 
 
 # set work path
-path = "~/Documents/Capstone - Raw Data Backup"
-
-# set input file
-# file.input = "group_data_4_entry.csv"
-# group.num = "4_Entry"
-# file.subtitle = "Logistic Regression of 4 Levels with even entries"
-
-# set input file
-file.input = "group_data_4_entry_imputed.csv"
-group.num = "4_Entry_Imputed"
-file.subtitle = "Logistic Regression of 4 Levels with even entries after imputing all missing values with mean value"
-
-# set input file
-# file.input = "group_data_4_interval.csv"
-# group.num = "4_Interval"
-# file.subtitle = "Logistic Regression of 4 Levels with even intervals"
-
-# set input file
-# file.input = "group_data_4_interval.csv"
-# group.num = "4_Interval"
-# file.subtitle = "Logistic Regression of 4 Levels with even intervals"
-
-# set work path
-setwd(path)
+setwd("~/Documents/Capstone - Raw Data Backup/Logistic Regression")
 # set model output file
-file.output.model = paste("Logit_Reg_", group.num, "_Model.txt", sep = "")
+file.output.model = paste("Logit_Reg_4_Interval_Model_test.txt", sep = "")
 # set error rate output file
-file.output.error = paste("Logit_Reg_", group.num, "_Error.csv", sep = "")
+file.output.error = paste("Logit_Reg_4_Interval_Error_test.csv", sep = "")
 # give model title
-model.title = paste("Logit_Reg_", group.num, sep = "")
+model.title = paste("Logit_Reg_4_Interval", sep = "")
 # read data
-data = read.csv(file.input, header = T)
-data$Domain_1_Score_group = NULL
+data = read.csv("group_data_4_interval.csv", header = T)
 # load package
 require(nnet)
 
 # define function to do regressions
 reg = function(y, data.train) {
   # choose baseline
-  data.train[, y] <- relevel(data.train[, y], ref = "Low")
+  data.train[, y] <- relevel(data.train[, y], ref = "low")
   
   # initial model: use no variable
   empty.text = paste(y, "~ 1", sep = " ")
@@ -92,13 +68,13 @@ cross.validation.sets = function(y, data.full, k) {
   data.sets
 }
 
-# predict HAC scores
+# predict all outputs one by one
 k = 10
-HAC.predict.y = colnames(data)[49:53]
-HAC.predict.model = list()
-HAC.predict.error = list()
-for (i in 1:length(HAC.predict.y)){
-  y = HAC.predict.y[i]
+Output.predict.y = colnames(data)[49:50]
+Output.predict.model = list()
+Output.predict.error = list()
+for (i in 1:length(Output.predict.y)){
+  y = Output.predict.y[i]
   data.full = set.full(y, data)
   data.sets = cross.validation.sets(y, data.full, k)
   # cross validation
@@ -114,105 +90,27 @@ for (i in 1:length(HAC.predict.y)){
   data.train = data.full
   reg.model = reg(y, data.train)
   # save results
-  HAC.predict.model[[i]] = reg.model
-  HAC.predict.error[[i]] = error
+  Output.predict.model[[i]] = reg.model
+  Output.predict.error[[i]] = error
 }
-names(HAC.predict.model) = HAC.predict.y
-names(HAC.predict.error) = HAC.predict.y
-
-# predict HAI scores
-HAI.predict.y = colnames(data)[54:65]
-HAI.predict.model = list()
-HAI.predict.error = list()
-for (i in 1:length(HAI.predict.y)){
-  y = HAI.predict.y[i]
-  data.full = set.full(y, data)
-  data.sets = cross.validation.sets(y, data.full, k)
-  # cross validation
-  errors = c()
-  for(j in 1:k) {
-    data.train = data.sets[[j]]
-    data.test = data.sets[[j+k]]
-    reg.train = reg(y, data.train)
-    errors = c(errors, pre(y, data.test, reg.train))
-  }
-  error = mean(errors)
-  # full model
-  data.train = data.full
-  reg.model = reg(y, data.train)
-  # save results
-  HAI.predict.model[[i]] = reg.model
-  HAI.predict.error[[i]] = error
-}
-names(HAI.predict.model) = HAI.predict.y
-names(HAI.predict.error) = HAI.predict.y
-
-# predict RCD scores
-RCD.predict.y = colnames(data)[66:84]
-RCD.predict.model = list()
-RCD.predict.error = list()
-for (i in 1:length(RCD.predict.y)){
-  y = RCD.predict.y[i]
-  data.full = set.full(y, data)
-  data.sets = cross.validation.sets(y, data.full, k)
-  # cross validation
-  errors = c()
-  for(j in 1:k) {
-    data.train = data.sets[[j]]
-    data.test = data.sets[[j+k]]
-    reg.train = reg(y, data.train)
-    errors = c(errors, pre(y, data.test, reg.train))
-  }
-  error = mean(errors)
-  # full model
-  data.train = data.full
-  reg.model = reg(y, data.train)
-  # save results
-  RCD.predict.model[[i]] = reg.model
-  RCD.predict.error[[i]] = error
-}
-names(RCD.predict.model) = RCD.predict.y
-names(RCD.predict.error) = RCD.predict.y
+names(Output.predict.model) = Output.predict.y
+names(Output.predict.error) = Output.predict.y
 
 # output model
-cat(file.subtitle, file = file.output.model)
-cat("\n\n", file = file.output.model)
-for (i in 1:length(HAC.predict.model)) {
-  cat(names(HAC.predict.error)[i], file = file.output.model, append = TRUE)
+cat("Logistic Regression of 4 Levels with even intervals", file = file.output.model)
+cat("\n\n", file = file.output.model, append = TRUE)
+for (i in 1:length(Output.predict.model)) {
+  cat(names(Output.predict.error)[i], file = file.output.model, append = TRUE)
   cat("\n", file = file.output.model, append = TRUE)
-  capture.output(HAC.predict.model[[i]], file = file.output.model, append = TRUE)
+  capture.output(Output.predict.model[[i]], file = file.output.model, append = TRUE)
   cat("Misclassification Rate: ", file = file.output.model, append = TRUE)
-  cat(HAC.predict.error[[i]], file = file.output.model, append = TRUE)
-  cat("\n\n----------------------------------------------------------------------------------\n\n", 
-      file = file.output.model, append = TRUE)
-}
-for (i in 1:length(HAI.predict.model)) {
-  cat(names(HAI.predict.error)[i], file = file.output.model, append = TRUE)
-  cat("\n", file = file.output.model, append = TRUE)
-  capture.output(HAI.predict.model[[i]], file = file.output.model, append = TRUE)
-  cat("Misclassification Rate: ", file = file.output.model, append = TRUE)
-  cat(HAI.predict.error[[i]], file = file.output.model, append = TRUE)
-  cat("\n\n----------------------------------------------------------------------------------\n\n", 
-      file = file.output.model, append = TRUE)
-}
-for (i in 1:length(RCD.predict.model)) {
-  cat(names(RCD.predict.error)[i], file = file.output.model, append = TRUE)
-  cat("\n", file = file.output.model, append = TRUE)
-  capture.output(RCD.predict.model[[i]], file = file.output.model, append = TRUE)
-  cat("Misclassification Rate: ", file = file.output.model, append = TRUE)
-  cat(RCD.predict.error[[i]], file = file.output.model, append = TRUE)
+  cat(Output.predict.error[[i]], file = file.output.model, append = TRUE)
   cat("\n\n----------------------------------------------------------------------------------\n\n", 
       file = file.output.model, append = TRUE)
 }
 
+
 # output error rate
-HAC.df = t(as.data.frame(HAC.predict.error))
-colnames(HAC.df) = model.title
-HAI.df = t(as.data.frame(HAI.predict.error))
-colnames(HAI.df) = model.title
-HAC.df = t(as.data.frame(HAC.predict.error))
-colnames(HAC.df) = model.title
-RCD.df = t(as.data.frame(RCD.predict.error))
-colnames(RCD.df) = model.title
-DF = rbind(HAC.df, HAI.df, RCD.df)
-write.csv(DF, file.output.error, row.names = T)
+Output.df = t(as.data.frame(Output.predict.error))
+colnames(Output.df) = model.title
+write.csv(Output.df, file.output.error, row.names = T)
