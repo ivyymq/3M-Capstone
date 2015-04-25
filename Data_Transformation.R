@@ -219,4 +219,4 @@ colnames(data.dic) = c("Measure_ID", "Measure_Name", "Measure_Source")
 # merge data summary with dictionary
 data.dic = merge(data.dic, data.pro.summary, by = "Measure_ID", all.x = T, sort = F)
 # output merged data dictionary as .csv file
-write.csv(data.dic, "Data_dic.csv", row.names = FALSE)
+write.csv(data.dic, "Data_Dic.csv", row.names = FALSE)
