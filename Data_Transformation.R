@@ -1,6 +1,6 @@
 # title: Data_Transformation
 # author: CMU 3M Team
-# version: 1.0
+# version: 2.0
 # output: .csv document
 
 # set work path to your work directory
@@ -196,6 +196,7 @@ write.csv(data.pro, "Data_Pro_Numeric.csv", row.names=FALSE)
 # create data summary for the data matrix
 cal.summary = function(x) {
   missing = length(which(is.na(x)))
+  miss.per = round(missing / length(x) * 100, 3)
   if (missing == length(x)) {
     min = NA
     max = NA
@@ -206,7 +207,7 @@ cal.summary = function(x) {
   }
   mean = round(mean(x, na.rm = T), 3)
   median = round(median(x, na.rm = T), 3)
-  summary = c("Minimum" = min, "Maximum" = max, "Mean" = mean, "Median" = median, "Missing" = missing)
+  summary = c("Minimum" = min, "Maximum" = max, "Mean" = mean, "Median" = median, "Missing" = missing, "Missing Percentage" = miss.per)
   summary
 }
 data.pro.summary = as.data.frame(t(sapply(data.pro[, 2:151], FUN = cal.summary)))
